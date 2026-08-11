@@ -254,7 +254,6 @@ Vai trò chi tiết xem mục 1. Bảng này ánh xạ từng thành viên sang 
 - Viết mục 6 của báo cáo này.
 
 **Evidence:** `submission/evidence/challenge_investigation.txt`, `submission/evidence/challenge_logs.jsonl`
-<<<<<<< HEAD
 
 **Điều đã học:** Ba tầng quan sát trả lời ba câu hỏi khác nhau và không tầng nào thay được tầng nào. Metrics nói có vấn đề nhưng đã gộp mọi request thành một con số nên không chỉ được chỗ; traces mổ một request thành từng span nên nói được ở đâu; logs giữ dữ liệu thật của từng dòng nên mới chứng minh được tại sao.
 
@@ -263,5 +262,3 @@ Vai trò chi tiết xem mục 1. Bảng này ánh xạ từng thành viên sang 
 Một điểm nữa: bằng chứng mạnh nhất lại là con số đều nhau, không phải con số lớn. Cả 5 request đều cộng đúng khoảng 2500 ms. Nếu nguyên nhân là tải cao hay tranh chấp tài nguyên thì độ trễ phải phân tán; đều tăm tắp như vậy chỉ có thể là một khoảng chờ cố định nằm trong code. Đó là thứ chốt được root cause mà không cần đọc source trước.
 
 Cuối cùng là cách loại trừ. Cost và quality không đổi nên loại cost spike và suy giảm model; error rate giữ 0% nên loại crash; cả 5 trace cùng một prompt version nên loại giả thuyết đổi prompt. Metadata gắn vào trace không chỉ để hiển thị đẹp — nó là công cụ để gạch tên nghi phạm. Sau bài này tớ hiểu vì sao phải đính `prompt_name`, `prompt_label`, `prompt_version` vào mọi trace ngay từ đầu, chứ không đợi đến lúc có sự cố mới thêm.
-=======
->>>>>>> 991ba70a6fc2eb77f27ba5a1726f430b13950553
