@@ -212,3 +212,4 @@ Vai trò chi tiết xem mục 1. Bảng này ánh xạ từng thành viên sang 
 - Viết mục 6 của báo cáo này.
 
 **Bằng chứng:** `submission/evidence/challenge_investigation.txt`, `submission/evidence/challenge_logs.jsonl`
+**Điều đã học:** Ba tầng quan sát trả lời ba câu hỏi khác nhau và không tầng nào thay được tầng nào. Metrics nói có vấn đề nhưng đã gộp mọi request thành một con số nên không chỉ được chỗ; traces mổ một request thành từng span nên nói được ở đâu; logs giữ dữ liệu thật của từng dòng nên mới chứng minh được tại sao.
