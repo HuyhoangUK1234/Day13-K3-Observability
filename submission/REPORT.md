@@ -12,13 +12,9 @@
 | 2A202601225 | Nguyễn Duy Hải Bằng | Thành viên A — API & Middleware (CP1 Correlation ID) |
 | 2A202601267 | Trần Thị Thanh Tâm  | Thành viên B — Security Engineer (CP1 PII Scrubbing) |
 | 2A202601125 | Tạ Thị Nga           | Thành viên C — Dashboard & SLO (CP2)                 |
-<<<<<<< HEAD
 | 2A202601105 | Huỳnh Hoàng Việt    | Thành viên D — Tracing & Prompt Versioning (CP2)     |
 | 2A202601433 | Nguyễn Văn Tiến   | Thành viên E — Incident Investigation (CP3)          |
-=======
-| 2A202601105 | Huỳnh Hoàng Việt    | CP2 owner — Tracing & Prompt Versioning                |
-| 2A202601433 | Nguyễn Văn Tiến     | CP3 owner — Incident Investigation                     |
->>>>>>> 991ba70a6fc2eb77f27ba5a1726f430b13950553
+
 
 ## 2. Technical Results
 
