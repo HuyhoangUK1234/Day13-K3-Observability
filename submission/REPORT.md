@@ -155,7 +155,6 @@ Commit SHA dưới đây lấy trực tiếp từ `git log` nên đối chiếu 
 
 ### 7.1. Bảng tóm tắt commit
 
-<<<<<<< HEAD
 | MSSV | Thành viên | Vai trò | Commit chính |
 |---|---|---|---|
 | 2A202601225 | Nguyễn Duy Hải Bằng | Thành viên A — API & Middleware | `9fc91ee` |
@@ -163,19 +162,6 @@ Commit SHA dưới đây lấy trực tiếp từ `git log` nên đối chiếu 
 | 2A202601125 | Tạ Thị Nga | Thành viên C — Dashboard & SLO | `12b80f1`, `bd55514` |
 | 2A202601105 | Huỳnh Hoàng Việt | Thành viên D — Tracing & Prompt Versioning | `9c7e299`, `0fb82a1` |
 | 2A202601433 | Nguyễn Văn Tiến | Thành viên E — Incident Investigation | `bf05cfb` |
-
-### 7.2. Nguyễn Duy Hải Bằng — API & Middleware (CP1 Correlation ID)
-=======
-Vai trò chi tiết xem mục 1. Bảng này ánh xạ từng thành viên sang commit tương ứng để đối chiếu với `git log`.
-
-| MSSV         | Thành viên           | Commit chính            |
-| ------------ | ---------------------- | ------------------------ |
-| 2A202601225  | Nguyễn Duy Hải Bằng | `9fc91ee`              |
-| 2A202601267  | Trần Thị Thanh Tâm  | `d80f481`, `4a9e45e` |
-| 2A202601125  | Tạ Thị Nga           | `12b80f1`, `bd55514` |
-| 2A202601105  | Huỳnh Hoàng Việt    | `9c7e299`, `0fb82a1` |
-| 2A202601433  | Nguyễn Văn Tiến     | `bf05cfb`              |
->>>>>>> 991ba70a6fc2eb77f27ba5a1726f430b13950553
 
 ### 7.2. Nguyễn Duy Hải Bằng — API & Middleware (CP1 Correlation ID)
 
