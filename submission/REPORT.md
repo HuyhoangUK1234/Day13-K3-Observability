@@ -32,7 +32,7 @@
 ## 5. Dashboard, SLO And Alerts
 
 - `validate_dashboard.py` result: `HOP LE: 6/6 panel co trong dashboard contract.` Evidence: `submission/evidence/validate_dashboard_cp2.txt`.
-- Dashboard evidence: screenshots are stored in `submission/evidence/Screenshot 2026-08-11 105102.png` through `submission/evidence/Screenshot 2026-08-11 105716.png`. Dashboard test evidence: `submission/evidence/dashboard_tests_cp2.txt`.
+- Dashboard evidence: screenshots are stored in `submission/evidence/Dashboard1.png`, `submission/evidence/Dashboard2.png`, `submission/evidence/Dashboard3.png`, `submission/evidence/validate_dashboard.png`, and `submission/evidence/validate_logs.png`. Dashboard test evidence: `submission/evidence/dashboard_tests_cp2.txt`.
 - Selected SLOs and reasons:
 
 | Panel | Metric | SLO threshold | Reason |
@@ -60,5 +60,5 @@
 
 | Member | Work | Commit/PR | Learned |
 |---|---|---|---|
-| Thanh vien C | Built the six-panel dashboard in `scripts/dashboard.py`: latency P50/P95/P99, traffic, error rate, cost, tokens, quality, with SLO threshold indicators. | _(fill commit SHA)_ | How to calculate `error_rate_pct` from JSONL logs and visualize SLO status. |
+| Tạ Thị Nga | Xây dựng dashboard 6 panel (`scripts/dashboard.py`): Latency P50/P95/P99, Traffic, Error rate %, Cost, Tokens, Quality, có SLO threshold và badge xanh/đỏ. Chạy `validate_dashboard.py` đạt HỢP LỆ 6/6. | _12b80f1830429bfa8af530bffb57376fe5512749_ | Cách tính `error_rate_pct` từ JSONL log; thiết kế dashboard không cần DB; trực quan hoá SLO bằng Gauge/Donut chart. |
 | CP2 owner | Set SLO note, wrote alert rules, wrote alert runbook, generated CP2 validator evidence, and documented the incident investigation flow. | _(fill commit SHA)_ | How to connect Metrics -> Traces -> Logs and turn SLOs into actionable alerts. |
