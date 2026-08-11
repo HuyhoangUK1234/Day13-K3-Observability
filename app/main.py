@@ -3,7 +3,10 @@ from __future__ import annotations
 import os
 
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.encoders import jsonable_encoder
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from structlog.contextvars import bind_contextvars
 
 from .agent import LabAgent
@@ -20,6 +23,72 @@ log = get_logger()
 app = FastAPI(title="Day 13 Observability Lab")
 app.add_middleware(CorrelationIdMiddleware)
 agent = LabAgent()
+
+
+def _correlation_id(request: Request) -> str:
+    return getattr(request.state, "correlation_id", "MISSING")
+
+
+# Các handler dưới đây chạy ở tầng HTTP nên dùng service="http": request lỗi có thể
+# chưa có user context, nếu gắn service="api" thì log sẽ thiếu enrichment bắt buộc.
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
+    record_error("ValidationError")
+    log.error(
+        "request_validation_failed",
+        service="http",
+        correlation_id=_correlation_id(request),
+        error_type="ValidationError",
+        payload={
+            "method": request.method,
+            "path": request.url.path,
+            "detail": [
+                {"loc": ".".join(str(part) for part in err["loc"]), "msg": err["msg"]}
+                for err in exc.errors()
+            ],
+        },
+    )
+    return JSONResponse(status_code=422, content={"detail": jsonable_encoder(exc.errors())})
+
+
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request: Request, exc: StarletteHTTPException) -> JSONResponse:
+    # Không record_error ở đây: lỗi 5xx đã được đếm tại nơi phát sinh, tránh đếm trùng.
+    emit = log.error if exc.status_code >= 500 else log.warning
+    emit(
+        "http_exception",
+        service="http",
+        correlation_id=_correlation_id(request),
+        error_type="HTTPException",
+        payload={
+            "method": request.method,
+            "path": request.url.path,
+            "status_code": exc.status_code,
+            "detail": str(exc.detail),
+        },
+    )
+    return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
+
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    record_error(type(exc).__name__)
+    log.error(
+        "unhandled_exception",
+        service="http",
+        correlation_id=_correlation_id(request),
+        error_type=type(exc).__name__,
+        payload={
+            "method": request.method,
+            "path": request.url.path,
+            "detail": str(exc),
+        },
+        exc_info=True,
+    )
+    # Không trả chi tiết exception ra client để tránh lộ thông tin nội bộ.
+    return JSONResponse(status_code=500, content={"detail": "Internal Server Error"})
 
 
 @app.on_event("startup")
@@ -44,9 +113,15 @@ async def metrics() -> dict:
 
 @app.post("/chat", response_model=ChatResponse)
 async def chat(request: Request, body: ChatRequest) -> ChatResponse:
-    # TODO: Enrich logs with request context (user_id_hash, session_id, feature, model, env)
-    # bind_contextvars(...)
-    
+    # Enrich log với context của request; correlation_id đã được middleware bind.
+    bind_contextvars(
+        user_id_hash=hash_user_id(body.user_id),
+        session_id=body.session_id,
+        feature=body.feature,
+        model=agent.model,
+        env=os.getenv("APP_ENV", "dev"),
+    )
+
     log.info(
         "request_received",
         service="api",
@@ -71,7 +146,7 @@ async def chat(request: Request, body: ChatRequest) -> ChatResponse:
         )
         return ChatResponse(
             answer=result.answer,
-            correlation_id=request.state.correlation_id,
+            correlation_id=_correlation_id(request),
             latency_ms=result.latency_ms,
             tokens_in=result.tokens_in,
             tokens_out=result.tokens_out,
