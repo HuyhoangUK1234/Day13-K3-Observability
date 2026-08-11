@@ -12,8 +12,13 @@
 | 2A202601225 | Nguyễn Duy Hải Bằng | Thành viên A — API & Middleware (CP1 Correlation ID) |
 | 2A202601267 | Trần Thị Thanh Tâm  | Thành viên B — Security Engineer (CP1 PII Scrubbing) |
 | 2A202601125 | Tạ Thị Nga           | Thành viên C — Dashboard & SLO (CP2)                 |
+<<<<<<< HEAD
 | 2A202601105 | Huỳnh Hoàng Việt    | Thành viên D — Tracing & Prompt Versioning (CP2)     |
 | 2A202601433 | Nguyễn Văn Tiến   | Thành viên E — Incident Investigation (CP3)          |
+=======
+| 2A202601105 | Huỳnh Hoàng Việt    | CP2 owner — Tracing & Prompt Versioning                |
+| 2A202601433 | Nguyễn Văn Tiến     | CP3 owner — Incident Investigation                     |
+>>>>>>> 991ba70a6fc2eb77f27ba5a1726f430b13950553
 
 ## 2. Technical Results
 
@@ -152,8 +157,9 @@ Cờ `rag_slow` được bật khiến hàm `retrieve()` trong [app/mock_rag.py:
 
 Commit SHA dưới đây lấy trực tiếp từ `git log` nên đối chiếu được với repository. Vai trò được xác định theo file mà từng thành viên thực sự thay đổi, không phải theo phân công trên giấy.
 
-### 7.1. Bảng tóm tắt
+### 7.1. Bảng tóm tắt commit
 
+<<<<<<< HEAD
 | MSSV | Thành viên | Vai trò | Commit chính |
 |---|---|---|---|
 | 2A202601225 | Nguyễn Duy Hải Bằng | Thành viên A — API & Middleware | `9fc91ee` |
@@ -163,8 +169,21 @@ Commit SHA dưới đây lấy trực tiếp từ `git log` nên đối chiếu 
 | 2A202601433 | Nguyễn Văn Tiến | Thành viên E — Incident Investigation | `bf05cfb` |
 
 ### 7.2. Nguyễn Duy Hải Bằng — API & Middleware (CP1 Correlation ID)
+=======
+Vai trò chi tiết xem mục 1. Bảng này ánh xạ từng thành viên sang commit tương ứng để đối chiếu với `git log`.
 
-**Commit:** `9fc91eebd0ebb24f94da3481a8106306c47297bb` — *phan a*
+| MSSV         | Thành viên           | Commit chính            |
+| ------------ | ---------------------- | ------------------------ |
+| 2A202601225  | Nguyễn Duy Hải Bằng | `9fc91ee`              |
+| 2A202601267  | Trần Thị Thanh Tâm  | `d80f481`, `4a9e45e` |
+| 2A202601125  | Tạ Thị Nga           | `12b80f1`, `bd55514` |
+| 2A202601105  | Huỳnh Hoàng Việt    | `9c7e299`, `0fb82a1` |
+| 2A202601433  | Nguyễn Văn Tiến     | `bf05cfb`              |
+>>>>>>> 991ba70a6fc2eb77f27ba5a1726f430b13950553
+
+### 7.2. Nguyễn Duy Hải Bằng — API & Middleware (CP1 Correlation ID)
+
+**Commit:** `9fc91eebd0ebb24f94da3481a8106306c47297bb` 
 
 **Nhiệm vụ đã làm**
 
@@ -178,11 +197,10 @@ Commit SHA dưới đây lấy trực tiếp từ `git log` nên đối chiếu 
 
 **Evidence:** `submission/evidence/correlation_id_logs.jsonl`, `submission/evidence/validate_logs_after_cp1_middleware.txt`
 
-**Điều đã học:** _(thành viên tự điền)_
 
 ### 7.3. Trần Thị Thanh Tâm — Security Engineer (CP1 PII Scrubbing)
 
-**Commit:** `d80f481e8014397bd2b25c2cfa3a9039e43a8904` — *feat(pii): scrub PII across all log fields and extend regex patterns*; `4a9e45e412d86f1579290cad3b43161009ea849e` — *docs(pii): add CP1 PII scrubbing evidence and report entry*
+**Commit:** `d80f481e8014397bd2b25c2cfa3a9039e43a8904`; `4a9e45e412d86f1579290cad3b43161009ea849e` 
 
 **Nhiệm vụ đã làm**
 
@@ -198,7 +216,7 @@ Commit SHA dưới đây lấy trực tiếp từ `git log` nên đối chiếu 
 
 ### 7.4. Tạ Thị Nga — Dashboard & SLO (CP2)
 
-**Commit:** `12b80f1830429bfa8af530bffb57376fe5512749` — *Thanh vien C commit*; `bd55514934c93d3d54939917e549c57d9bb43386` — *Nga commit*
+**Commit:** `12b80f1830429bfa8af530bffb57376fe5512749`; `bd55514934c93d3d54939917e549c57d9bb43386`
 
 **Nhiệm vụ đã làm**
 
@@ -213,7 +231,7 @@ Commit SHA dưới đây lấy trực tiếp từ `git log` nên đối chiếu 
 
 ### 7.5. Huỳnh Hoàng Việt — Tracing & Prompt Versioning (CP2)
 
-**Commit:** `9c7e299dbfca967939bb60590f820dd239adfcaf` — *Viet complete checkpoint2*; `0fb82a16b7d8db28dda9eaca064317f01d8480cd` — *Viet completed CP2*
+**Commit:** `9c7e299dbfca967939bb60590f820dd239adfcaf; 0fb82a16b7d8db28dda9eaca064317f01d8480cd`
 
 **Nhiệm vụ đã làm**
 
@@ -228,7 +246,7 @@ Commit SHA dưới đây lấy trực tiếp từ `git log` nên đối chiếu 
 
 ### 7.6. Nguyễn Văn Tiến — Incident Investigation (CP3)
 
-**Commit:** `bf05cfb3459b861db1d66d7875a5adfdfbb94563` — *cp3*
+**Commit:** `bf05cfb3459b861db1d66d7875a5adfdfbb94563` 
 
 **Nhiệm vụ đã làm**
 
@@ -240,6 +258,7 @@ Commit SHA dưới đây lấy trực tiếp từ `git log` nên đối chiếu 
 - Viết mục 6 của báo cáo này.
 
 **Evidence:** `submission/evidence/challenge_investigation.txt`, `submission/evidence/challenge_logs.jsonl`
+<<<<<<< HEAD
 
 **Điều đã học:** Ba tầng quan sát trả lời ba câu hỏi khác nhau và không tầng nào thay được tầng nào. Metrics nói có vấn đề nhưng đã gộp mọi request thành một con số nên không chỉ được chỗ; traces mổ một request thành từng span nên nói được ở đâu; logs giữ dữ liệu thật của từng dòng nên mới chứng minh được tại sao.
 
@@ -248,3 +267,5 @@ Commit SHA dưới đây lấy trực tiếp từ `git log` nên đối chiếu 
 Một điểm nữa: bằng chứng mạnh nhất lại là con số đều nhau, không phải con số lớn. Cả 5 request đều cộng đúng khoảng 2500 ms. Nếu nguyên nhân là tải cao hay tranh chấp tài nguyên thì độ trễ phải phân tán; đều tăm tắp như vậy chỉ có thể là một khoảng chờ cố định nằm trong code. Đó là thứ chốt được root cause mà không cần đọc source trước.
 
 Cuối cùng là cách loại trừ. Cost và quality không đổi nên loại cost spike và suy giảm model; error rate giữ 0% nên loại crash; cả 5 trace cùng một prompt version nên loại giả thuyết đổi prompt. Metadata gắn vào trace không chỉ để hiển thị đẹp — nó là công cụ để gạch tên nghi phạm. Sau bài này tớ hiểu vì sao phải đính `prompt_name`, `prompt_label`, `prompt_version` vào mọi trace ngay từ đầu, chứ không đợi đến lúc có sự cố mới thêm.
+=======
+>>>>>>> 991ba70a6fc2eb77f27ba5a1726f430b13950553
