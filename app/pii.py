@@ -3,12 +3,19 @@ from __future__ import annotations
 import hashlib
 import re
 
+# scrub_text thay thế tuần tự theo thứ tự dict, nên email phải đứng trước các pattern số:
+# nếu phone_vn chạy trước, "user0901234567@example.com" bị cắt thành
+# "user[REDACTED_PHONE_VN]@example.com" và tên miền vẫn lộ.
+# Các pattern số còn lại độc lập với nhau vì \b chặn dãy ngắn khớp bên trong dãy dài.
 PII_PATTERNS: dict[str, str] = {
     "email": r"[\w\.-]+@[\w\.-]+\.\w+",
     "phone_vn": r"(?<!\d)(?:\+84|0)(?:[ .-]?\d){9}(?!\d)",
     "cccd": r"\b\d{12}\b",
     "credit_card": r"\b\d{4}[- ]?\d{4}[- ]?\d{4}[- ]?\d{4}\b",
-    # TODO: Add more patterns (e.g., Passport, Vietnamese address keywords)
+    "passport_vn": r"\b[A-Z]\d{7}\b",
+    "cmnd": r"\b\d{9}\b",
+    "dob": r"\b\d{1,2}[/-]\d{1,2}[/-]\d{4}\b",
+    "address_vn": r"(?i)\b(?:số nhà|ngõ|ngách|đường|phố|phường|quận|huyện)\s+[^\n,;]{1,40}",
 }
 
 
