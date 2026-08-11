@@ -64,6 +64,6 @@ Với mỗi thành viên, ghi rõ nhiệm vụ và link commit/PR tương ứng.
 |---|---|---|---|
 | | | | |
 | | | | |
-| Thành viên C | Xây dựng dashboard 6 panel (`scripts/dashboard.py`): Latency P50/P95/P99, Traffic, Error rate %, Cost, Tokens, Quality — có SLO threshold và badge xanh/đỏ. Chạy `validate_dashboard.py` đạt HỢP LỆ 6/6. | _(điền commit SHA)_ | Cách tính `error_rate_pct` từ JSONL log; thiết kế dashboard không cần DB; trực quan hoá SLO bằng Gauge/Donut chart |
+| Tạ Thị Nga | Xây dựng dashboard 6 panel (`scripts/dashboard.py`): Latency P50/P95/P99, Traffic, Error rate %, Cost, Tokens, Quality — có SLO threshold và badge xanh/đỏ. Chạy `validate_dashboard.py` đạt HỢP LỆ 6/6. | _12b80f1830429bfa8af530bffb57376fe5512749_ | Cách tính `error_rate_pct` từ JSONL log; thiết kế dashboard không cần DB; trực quan hoá SLO bằng Gauge/Donut chart |
 | | | | |
 | | | | |
