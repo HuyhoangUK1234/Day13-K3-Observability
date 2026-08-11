@@ -1,0 +1,17 @@
+﻿============================= test session starts =============================
+collecting ... collected 12 items
+
+tests/test_pii.py::test_scrub_email PASSED                               [  8%]
+tests/test_pii.py::test_scrub_common_vietnamese_phone_formats PASSED     [ 16%]
+tests/test_pii.py::test_scrub_cccd PASSED                                [ 25%]
+tests/test_pii.py::test_scrub_credit_card_grouped_and_contiguous PASSED  [ 33%]
+tests/test_pii.py::test_scrub_passport_vn PASSED                         [ 41%]
+tests/test_pii.py::test_scrub_cmnd_nine_digits PASSED                    [ 50%]
+tests/test_pii.py::test_scrub_date_of_birth PASSED                       [ 58%]
+tests/test_pii.py::test_scrub_vietnamese_address_keywords PASSED         [ 66%]
+tests/test_pii.py::test_email_is_scrubbed_before_number_patterns PASSED  [ 75%]
+tests/test_pii.py::test_scrub_keeps_non_pii_log_fields_intact PASSED     [ 83%]
+tests/test_pii.py::test_scrub_event_covers_every_field_not_only_payload PASSED [ 91%]
+tests/test_pii.py::test_scrub_event_runs_before_the_file_writer PASSED   [100%]
+
+============================= 12 passed in 0.05s ==============================

@@ -1,8 +1,9 @@
-﻿# Day 13 Observability Report
+﻿
+# Day 13 Observability Report
 
 ## 1. Group Info
 
-- Group name:
+- Group name: B2
 - Repository URL:
 - Final commit SHA:
 - Members and roles:
@@ -17,7 +18,11 @@
 ## 3. Logging And Tracing
 
 - Correlation ID evidence: `data/logs.jsonl` and `submission/evidence/validate_logs_cp2.txt`; validator found 11 unique correlation IDs.
-- PII redaction evidence: `validate_logs.py` reported `Potential PII leaks detected: 0`; sample message preview redacts email as `[REDACTED_EMAIL]`.
+- PII redaction evidence:
+  - `submission/evidence/validate_logs_pii_cp1.txt` — `validate_logs.py` reports `Potential PII leaks detected: 0` and `+ [PASSED] PII scrubbing` across 31 records with 10 unique correlation IDs (estimated score 100/100).
+  - `submission/evidence/pii_redacted_logs.jsonl` — the three log lines where PII would otherwise appear, showing `[REDACTED_EMAIL]`, `[REDACTED_PHONE_VN]` and `[REDACTED_CREDIT_CARD]`. The count matches exactly the three PII samples planted in `data/sample_queries.jsonl` (lines 1, 5, 9), so nothing leaked and nothing was over-redacted.
+  - `submission/evidence/pii_tests_cp1.txt` — 12/12 tests in `tests/test_pii.py` pass, including `test_scrub_event_runs_before_the_file_writer`, which asserts the scrubbing processor is actually registered in the structlog chain and runs before the file writer.
+  - Note on interpretation: the validator's `PASSED` line alone does not prove the scrubber works. The starter code already wrapped both preview fields with `summarize_text()` in [app/main.py:53](../app/main.py#L53) and [app/main.py:70](../app/main.py#L70), so those two paths were clean before any change. The real contribution covers the fields nobody wrapped — `str(exc)` at [app/main.py:88](../app/main.py#L88) and the traceback produced by `format_exc_info`. The unit tests, not the validator line, are the evidence for that.
 - Trace waterfall evidence: use one trace from `submission/evidence/langfuse_10_traces_cp2.txt`, for example `d8ef17c116d45a84319d214182fb733b`.
 - Notable span explanation: app attaches prompt metadata to trace and generation updates. Technical evidence: `submission/evidence/prompt_tracing_tests_cp2.txt`.
 
@@ -35,14 +40,14 @@
 - Dashboard evidence: screenshots are stored in `submission/evidence/Dashboard1.png`, `submission/evidence/Dashboard2.png`, `submission/evidence/Dashboard3.png`, `submission/evidence/validate_dashboard.png`, and `submission/evidence/validate_logs.png`. Dashboard test evidence: `submission/evidence/dashboard_tests_cp2.txt`.
 - Selected SLOs and reasons:
 
-| Panel | Metric | SLO threshold | Reason |
-|---|---|---|---|
-| Latency | P95 latency | <= 3000 ms | Keeps chat responses usable and exposes slow RAG/model paths early. |
-| Traffic | rate/min | >= 1 req/min | Confirms the service is receiving normal traffic. |
-| Errors | error_rate_pct | <= 2% | Keeps failed user requests within an acceptable bound. |
-| Cost | total cost | <= 2.50 USD | Keeps the lab workload inside the cost budget. |
-| Tokens | total tokens | <= 50,000 | Detects prompt or retrieval changes that consume too many tokens. |
-| Quality | mean score | >= 0.75 | Keeps the answer quality proxy above the minimum acceptable level. |
+| Panel   | Metric         | SLO threshold | Reason                                                              |
+| ------- | -------------- | ------------- | ------------------------------------------------------------------- |
+| Latency | P95 latency    | <= 3000 ms    | Keeps chat responses usable and exposes slow RAG/model paths early. |
+| Traffic | rate/min       | >= 1 req/min  | Confirms the service is receiving normal traffic.                   |
+| Errors  | error_rate_pct | <= 2%         | Keeps failed user requests within an acceptable bound.              |
+| Cost    | total cost     | <= 2.50 USD   | Keeps the lab workload inside the cost budget.                      |
+| Tokens  | total tokens   | <= 50,000     | Detects prompt or retrieval changes that consume too many tokens.   |
+| Quality | mean score     | >= 0.75       | Keeps the answer quality proxy above the minimum acceptable level.  |
 
 - Alert rules và runbook:
 
@@ -53,20 +58,20 @@
 
 **Triệu chứng từ metrics**
 
-| Chỉ số | Baseline (10 req, feature qa/summary) | Sau challenge (thêm 5 req feature refund) |
-|---|---|---|
-| P50 latency | 874 ms | 886 ms |
-| P95 latency | 919 ms | **3483 ms** |
-| error_breakdown | rỗng | rỗng |
-| avg_cost_usd | 0.002 | 0.002 |
-| quality_avg | 0.88 | 0.87 |
+| Chỉ số        | Baseline (10 req, feature qa/summary) | Sau challenge (thêm 5 req feature refund) |
+| --------------- | ------------------------------------- | ------------------------------------------ |
+| P50 latency     | 874 ms                                | 886 ms                                     |
+| P95 latency     | 919 ms                                | **3483 ms**                          |
+| error_breakdown | rỗng                                 | rỗng                                      |
+| avg_cost_usd    | 0.002                                 | 0.002                                      |
+| quality_avg     | 0.88                                  | 0.87                                       |
 
 P95 vượt SLO 3000 ms và vượt `latency_threshold_ms` = 2000 ms, trong khi P50 gần như đứng yên. Chênh lệch P50/P95 cho thấy chỉ một nhóm request bị chậm chứ không phải toàn hệ thống. Error rate giữ 0% và cost/quality không đổi, nên loại được giả thuyết crash, cost spike và suy giảm chất lượng model.
 
 **Trace ID liên quan** (Langfuse, lọc theo `session_id`)
 
-| session_id | trace_id | latency |
-|---|---|---|
+| session_id       | trace_id                             | latency |
+| ---------------- | ------------------------------------ | ------- |
 | k3-challenge-s01 | `79308270e4cb6ff3759f279731ad1aa9` | 3.485 s |
 | k3-challenge-s02 | `a0a176ba24e68a9374a602064e2f3567` | 3.389 s |
 | k3-challenge-s03 | `ce38710631cda3daabbd95caf6fcd9d4` | 3.405 s |
@@ -78,12 +83,12 @@ Cả 5 trace đều mang `prompt_name=day13-chat`, `prompt_version=local-v1`, `p
 **Log line / correlation ID liên quan**
 
 | correlation_id | feature | latency_ms |
-|---|---|---|
-| req-21dbc811 | refund | 3483 |
-| req-960cad93 | refund | 3418 |
-| req-d54d1c9a | refund | 3404 |
-| req-32689838 | refund | 3388 |
-| req-e1ed76cd | refund | 3366 |
+| -------------- | ------- | ---------- |
+| req-21dbc811   | refund  | 3483       |
+| req-960cad93   | refund  | 3418       |
+| req-d54d1c9a   | refund  | 3404       |
+| req-32689838   | refund  | 3388       |
+| req-e1ed76cd   | refund  | 3366       |
 
 So với baseline 824–919 ms, mỗi request challenge cộng thêm khoảng 2500 ms. Con số này gần như bằng nhau ở cả 5 request, nghĩa là độ trễ cố định chứ không phải do tải cao — nếu do tải thì độ trễ sẽ phân tán. Log `service=control` xác nhận cửa sổ thời gian: `incident_enabled rag_slow` lúc `04:37:57.922484Z`, `incident_disabled` lúc `04:38:36.073972Z`, và cả 5 request rơi trọn trong khoảng đó.
 
@@ -108,7 +113,8 @@ Cờ `rag_slow` được bật khiến hàm `retrieve()` trong [app/mock_rag.py:
 
 Với mỗi thành viên, ghi rõ nhiệm vụ và link commit/PR tương ứng.
 
-| Thành viên | Phần việc | Commit/PR | Điều đã học |
-|---|---|---|---|
-| Tạ Thị Nga | Xây dựng dashboard 6 panel (`scripts/dashboard.py`): Latency P50/P95/P99, Traffic, Error rate %, Cost, Tokens, Quality, có SLO threshold và badge xanh/đỏ. Chạy `validate_dashboard.py` đạt HỢP LỆ 6/6. | _12b80f1830429bfa8af530bffb57376fe5512749_ | Cách tính `error_rate_pct` từ JSONL log; thiết kế dashboard không cần DB; trực quan hoá SLO bằng Gauge/Donut chart. |
-| CP2 owner | Set SLO note, wrote alert rules, wrote alert runbook, generated CP2 validator evidence, and documented the incident investigation flow. | _(fill commit SHA)_ | How to connect Metrics -> Traces -> Logs and turn SLOs into actionable alerts. |
+| Thành viên          | Phần việc                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | Commit/PR                                                                                                                | Điều đã học                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Tạ Thị Nga          | Xây dựng dashboard 6 panel (`scripts/dashboard.py`): Latency P50/P95/P99, Traffic, Error rate %, Cost, Tokens, Quality, có SLO threshold và badge xanh/đỏ. Chạy `validate_dashboard.py` đạt HỢP LỆ 6/6.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | _12b80f1830429bfa8af530bffb57376fe5512749_                                                                             | Cách tính`error_rate_pct` từ JSONL log; thiết kế dashboard không cần DB; trực quan hoá SLO bằng Gauge/Donut chart.                                                                                                                                                                                                                                                                                                                                                                                   |
+| CP2 owner             | Set SLO note, wrote alert rules, wrote alert runbook, generated CP2 validator evidence, and documented the incident investigation flow.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | _(fill commit SHA)_                                                                                                    | How to connect Metrics -> Traces -> Logs and turn SLOs into actionable alerts.                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| Trần Thị Thanh Tâm | **CP1 PII Scrubbing (Security Engineer).** (1) Mở rộng `PII_PATTERNS` trong [app/pii.py](../app/pii.py) từ 4 lên 8 pattern — thêm hộ chiếu VN, CMND 9 số, ngày sinh, địa chỉ tiếng Việt; ghi chú phụ thuộc thứ tự `email` trước các pattern số. (2) Đăng ký `scrub_event` vào processor chain của structlog trong [app/logging_config.py](../app/logging_config.py) — hàm này có sẵn nhưng bị comment out nên chưa bao giờ chạy — và đặt sau `format_exc_info`, trước `JsonlFileProcessor`, để traceback cũng được che. (3) Viết lại `scrub_event` thành quét đệ quy toàn bộ `event_dict` (chuỗi, dict lồng nhau, list, tuple) thay vì chỉ `payload` một tầng. (4) Nâng `tests/test_pii.py` từ 2 lên 12 test. Evidence: `submission/evidence/pii_redacted_logs.jsonl`, `validate_logs_pii_cp1.txt`, `pii_tests_cp1.txt`. | `d80f481e8014397bd2b25c2cfa3a9039e43a8904` — *feat(pii): scrub PII across all log fields and extend regex patterns* | Thứ tự processor quyết định phạm vi bảo vệ: scrub phải chạy**sau** `format_exc_info` vì trước đó traceback còn là object chứ chưa phải chuỗi để regex quét, và phải **trước** bộ ghi file vì dữ liệu đã xuống đĩa là không thu hồi được. Nguyên tắc chung: vùng phủ của bộ che phải rộng bằng vùng phủ của bộ dò — `validate_logs.py` quét cả record sau `json.dumps`, nên che chọn lọc vài field là tự chừa cửa cho lọt. |
