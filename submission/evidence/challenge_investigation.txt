@@ -1,0 +1,107 @@
+Challenge: day13-k3-observability-v1 | Cohort: K3
+Incident config: config/challenge.json -> incident=rag_slow, affected_feature=refund,
+                 latency_threshold_ms=2000, seed=1303
+
+================================================================
+BUOC 1 - METRICS: phat hien trieu chung
+================================================================
+
+GET /metrics TRUOC khi bat incident (10 request baseline, feature qa/summary):
+{"traffic":10,"latency_p50":874.0,"latency_p95":919.0,"latency_p99":919.0,
+ "avg_cost_usd":0.002,"total_cost_usd":0.02,"tokens_in_total":330,
+ "tokens_out_total":1269,"error_breakdown":{},"quality_avg":0.88}
+
+GET /metrics SAU khi chay challenge (them 5 request feature=refund):
+{"traffic":15,"latency_p50":886.0,"latency_p95":3483.0,"latency_p99":3483.0,
+ "avg_cost_usd":0.002,"total_cost_usd":0.0297,"tokens_in_total":492,
+ "tokens_out_total":1881,"error_breakdown":{},"quality_avg":0.8733}
+
+Trieu chung:
+- P95 latency: 919ms -> 3483ms (tang 3.8 lan), vuot nguong SLO 3000ms va vuot
+  latency_threshold_ms=2000 trong challenge.json.
+- P50 gan nhu khong doi (874ms -> 886ms). Chi duoi phan tram cao bi anh huong
+  => chi mot nhom request bi cham, khong phai toan he thong.
+- error_breakdown rong: 0 loi. Khong phai su co loi/crash.
+- avg_cost_usd va quality_avg khong doi => khong phai cost spike, khong phai
+  suy giam chat luong model.
+
+Ket luan buoc 1: su co ve latency, khu tru o mot subset request, khong keo theo
+loi hay tang chi phi.
+
+================================================================
+BUOC 2 - TRACES: khoanh vung span bat thuong
+================================================================
+
+Trace tren Langfuse (loc theo session_id cua challenge):
+
+k3-challenge-s01 | trace_id=79308270e4cb6ff3759f279731ad1aa9 | latency=3.485s
+k3-challenge-s02 | trace_id=a0a176ba24e68a9374a602064e2f3567 | latency=3.389s
+k3-challenge-s03 | trace_id=ce38710631cda3daabbd95caf6fcd9d4 | latency=3.405s
+k3-challenge-s04 | trace_id=75649130653f02ad95999e8d96db1aeb | latency=3.419s
+k3-challenge-s05 | trace_id=58d6046236d7273f760c9f6fa1706c40 | latency=3.368s
+
+Tat ca 5 trace deu: prompt_name=day13-chat, prompt_version=local-v1,
+prompt_label=production => prompt khong doi giua baseline va challenge,
+loai tru gia thuyet "doi prompt lam cham".
+
+So sanh span trong trace:
+- Span generation (FakeLLM) giu nguyen ~0.85s nhu baseline.
+- Phan thoi gian con lai ~2.5s nam truoc buoc goi LLM, tuc buoc retrieve() cua RAG.
+
+Ket luan buoc 2: do tre nam o buoc truy xuat tai lieu (RAG retrieval),
+khong nam o buoc sinh cau tra loi.
+
+================================================================
+BUOC 3 - LOGS: chung minh root cause
+================================================================
+
+Log request challenge (feature=refund, khi rag_slow bat):
+req-32689838 | response_sent | 3388ms | session=k3-challenge-s02
+req-d54d1c9a | response_sent | 3404ms | session=k3-challenge-s03
+req-e1ed76cd | response_sent | 3366ms | session=k3-challenge-s05
+req-960cad93 | response_sent | 3418ms | session=k3-challenge-s04
+req-21dbc811 | response_sent | 3483ms | session=k3-challenge-s01
+
+Log request baseline (feature=qa/summary, khi rag_slow tat):
+req-f926e961 | qa      | 880ms
+req-9ca08ea8 | qa      | 824ms
+req-8f29e679 | summary | 886ms
+req-1d541e52 | qa      | 888ms
+req-a22c20b3 | qa      | 861ms
+req-a05502e5 | summary | 919ms
+req-1f134507 | qa      | 845ms
+req-c1c44995 | qa      | 861ms
+req-22287054 | qa      | 849ms
+req-2431ccdf | qa      | 874ms
+
+Chenh lech: 3388-3483ms so voi 824-919ms => tang co dinh khoang 2500ms moi request.
+Con so 2500ms giong nhau o ca 5 request => do tre co dinh, khong phai do tai cao
+hay do tranh chap tai nguyen (neu do tai thi do tre se phan tan, khong deu nhau).
+
+Log su kien dieu khien (service=control) xac nhan cua so thoi gian:
+2026-08-11T04:37:57.922484Z | incident_enabled  | rag_slow
+2026-08-11T04:38:36.073972Z | incident_disabled | rag_slow
+Toan bo 5 request cham roi dung vao cua so nay.
+
+Doi chieu ma nguon - app/mock_rag.py dong 15-18:
+
+    def retrieve(message: str) -> list[str]:
+        if STATE["tool_fail"]:
+            raise RuntimeError("Vector store timeout")
+        if STATE["rag_slow"]:
+            time.sleep(2.5)
+
+ROOT CAUSE: co switch rag_slow duoc bat, lam ham retrieve() trong app/mock_rag.py
+chen mot khoang cho co dinh 2.5 giay truoc khi tra ve tai lieu. Do tre nay nam
+tren duong di dong bo cua moi request, cong thang vao latency dau-cuoi.
+Trong he that, day tuong ung voi vector store / retrieval backend bi cham
+(index degrade, connection pool can, hoac timeout cua downstream bi dat qua cao).
+
+================================================================
+BUOC 4 - KIEM CHUNG VA TRANG THAI SAU DIEU TRA
+================================================================
+
+- Da tat incident: POST /incidents/rag_slow/disable -> 200,
+  {"rag_slow": false, "tool_fail": false, "cost_spike": false}
+- python scripts/validate_logs.py sau toan bo phien: 100/100,
+  54 records, 0 missing field, 0 PII leak, 21 correlation ID.
