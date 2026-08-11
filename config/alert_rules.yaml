@@ -1,19 +1,19 @@
 alerts:
-  - name: TODO_alert_1
-    severity: TODO
-    condition: TODO
+  - name: HighLatencyP95
+    severity: critical
+    condition: p95(response_sent.latency_ms, 5m) > 3000
     type: symptom-based
-    owner: TODO
-    runbook: docs/alerts.md#alert-1
-  - name: TODO_alert_2
-    severity: TODO
-    condition: TODO
+    owner: CP2-SLO-alert-runbook
+    runbook: docs/alerts.md#highlatencyp95
+  - name: HighErrorRate
+    severity: critical
+    condition: count(request_failed, 5m) / count(request_received, 5m) * 100 > 2
     type: symptom-based
-    owner: TODO
-    runbook: docs/alerts.md#alert-2
-  - name: TODO_alert_3
-    severity: TODO
-    condition: TODO
+    owner: CP2-SLO-alert-runbook
+    runbook: docs/alerts.md#higherrorrate
+  - name: QualityOrCostRegression
+    severity: warning
+    condition: mean(response_sent.quality_score, 10m) < 0.75 OR sum(response_sent.cost_usd, 60m) > 2.5
     type: symptom-based
-    owner: TODO
-    runbook: docs/alerts.md#alert-3
+    owner: CP2-SLO-alert-runbook
+    runbook: docs/alerts.md#qualityorcostregression

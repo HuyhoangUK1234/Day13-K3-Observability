@@ -4,7 +4,7 @@ slis:
   latency_p95_ms:
     objective: 3000
     target: 99.5
-    note: Replace with your group's target
+    note: Keep p95 chat latency under 3 seconds so slow RAG or model paths are visible before most users are affected.
   error_rate_pct:
     objective: 2
     target: 99.0
