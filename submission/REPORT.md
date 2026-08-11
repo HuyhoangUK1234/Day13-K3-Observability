@@ -1,69 +1,64 @@
-# Báo cáo Day 13 Observability
+﻿# Day 13 Observability Report
 
-## 1. Thông tin nhóm
+## 1. Group Info
 
-- Tên nhóm:
+- Group name:
 - Repository URL:
-- Commit SHA cuối:
-- Thành viên và vai trò:
+- Final commit SHA:
+- Members and roles:
 
-## 2. Kết quả kỹ thuật
+## 2. Technical Results
 
-- Điểm `validate_logs.py`:
-- Tổng số traces:
-- Số PII leak còn lại:
-- Link/đường dẫn dashboard: Streamlit local — `streamlit run scripts/dashboard.py` → http://localhost:8501 | Nguồn dữ liệu: `data/logs.jsonl` | `error_rate_pct` = count(`request_failed`) / count(`request_received`) × 100
+- `validate_logs.py` score: 100/100. Evidence: `submission/evidence/validate_logs_cp2.txt`.
+- Total traces: 10 Langfuse traces with metadata for CP2. Evidence: `submission/evidence/langfuse_10_traces_cp2.txt`.
+- Remaining PII leaks: 0 according to `validate_logs.py`.
+- Dashboard path: Streamlit local, run `streamlit run scripts/dashboard.py` and open `http://localhost:8501`. Data source: `data/logs.jsonl`. `error_rate_pct` = count(`request_failed`) / count(`request_received`) * 100.
 
-## 3. Logging và tracing
+## 3. Logging And Tracing
 
-- Evidence correlation ID:
-- Evidence PII redaction:
-- Evidence trace waterfall:
-- Giải thích một span đáng chú ý:
+- Correlation ID evidence: `data/logs.jsonl` and `submission/evidence/validate_logs_cp2.txt`; validator found 11 unique correlation IDs.
+- PII redaction evidence: `validate_logs.py` reported `Potential PII leaks detected: 0`; sample message preview redacts email as `[REDACTED_EMAIL]`.
+- Trace waterfall evidence: use one trace from `submission/evidence/langfuse_10_traces_cp2.txt`, for example `d8ef17c116d45a84319d214182fb733b`.
+- Notable span explanation: app attaches prompt metadata to trace and generation updates. Technical evidence: `submission/evidence/prompt_tracing_tests_cp2.txt`.
 
-## 4. Prompt versioning
+## 4. Prompt Versioning
 
-- Prompt name:
-- Version/label baseline:
-- Version/label candidate:
-- Trace ID của mỗi version:
-- Bằng chứng đổi label hoặc rollback:
+- Prompt name: `day13-chat`.
+- Baseline version/label: version 1 with labels `baseline` and `production`.
+- Candidate version/label: version 2 with label `candidate`.
+- Trace ID for each version: baseline `ba47689dd827372ce961c566258774cf`; candidate `eb06a44a39378ef187d1b4fb13722c02`. Evidence: `submission/evidence/langfuse_trace_ids_cp2.txt`.
+- Label switch or rollback evidence: `submission/evidence/prompt_label_rollback_cp2.txt` shows `production` moved to version 2 and rolled back to version 1. Local tests confirm the app records `prompt_name`, `prompt_label`, and `prompt_version` in trace metadata.
 
-## 5. Dashboard, SLO và alerts
+## 5. Dashboard, SLO And Alerts
 
-- Kết quả `validate_dashboard.py`: **HỢP LỆ: 6/6 panel có trong dashboard contract.**
-- Evidence dashboard: `submission/evidence/dashboard_screenshot.png` và `submission/evidence/validate_dashboard_passed.png`
-- SLO đã chọn và lý do:
+- `validate_dashboard.py` result: `HOP LE: 6/6 panel co trong dashboard contract.` Evidence: `submission/evidence/validate_dashboard_cp2.txt`.
+- Dashboard evidence: screenshots are stored in `submission/evidence/Screenshot 2026-08-11 105102.png` through `submission/evidence/Screenshot 2026-08-11 105716.png`. Dashboard test evidence: `submission/evidence/dashboard_tests_cp2.txt`.
+- Selected SLOs and reasons:
 
-| Panel | Chỉ số | Ngưỡng SLO | Lý do |
+| Panel | Metric | SLO threshold | Reason |
 |---|---|---|---|
-| Latency | P95 latency | ≤ 3000 ms | Đảm bảo trải nghiệm người dùng không bị chậm |
-| Traffic | rate/min | ≥ 1 req/min | Xác nhận hệ thống đang nhận traffic bình thường |
-| Errors | error_rate_pct | ≤ 2% | Giới hạn tỷ lệ lỗi ở mức chấp nhận được |
-| Cost | total cost | ≤ $2.50 | Kiểm soát chi phí trong giới hạn ngân sách |
-| Tokens | total tokens | ≤ 50,000 | Tránh sử dụng token vượt mức |
-| Quality | mean score | ≥ 0.75 | Đảm bảo chất lượng câu trả lời AI đạt tối thiểu |
+| Latency | P95 latency | <= 3000 ms | Keeps chat responses usable and exposes slow RAG/model paths early. |
+| Traffic | rate/min | >= 1 req/min | Confirms the service is receiving normal traffic. |
+| Errors | error_rate_pct | <= 2% | Keeps failed user requests within an acceptable bound. |
+| Cost | total cost | <= 2.50 USD | Keeps the lab workload inside the cost budget. |
+| Tokens | total tokens | <= 50,000 | Detects prompt or retrieval changes that consume too many tokens. |
+| Quality | mean score | >= 0.75 | Keeps the answer quality proxy above the minimum acceptable level. |
 
-- Alert rules và runbook:
+- Alert rules and runbook: `config/alert_rules.yaml` defines `HighLatencyP95`, `HighErrorRate`, and `QualityOrCostRegression`. The runbook in `docs/alerts.md` investigates incidents with the Metrics -> Traces -> Logs flow and includes a specific flow for the official `rag_slow` challenge on the `refund` feature.
 
-## 6. Điều tra challenge
+## 6. Challenge Investigation
 
-- Challenge ID:
-- Triệu chứng từ metrics:
-- Trace ID liên quan:
-- Log line/correlation ID liên quan:
-- Root cause:
-- Fix action:
-- Preventive measure:
+- Challenge ID: `day13-k3-observability-v1`.
+- Symptom from metrics: expected latency increase on the `refund` feature because `config/challenge.json` sets incident `rag_slow`.
+- Related trace ID: pending Langfuse trace ID from the official challenge run.
+- Related log line/correlation ID: pending after running `python scripts/inject_incident.py` and `python scripts/load_test.py --challenge --concurrency 5`.
+- Root cause: expected slow RAG path for `refund`; confirm with dashboard latency, slow Langfuse trace, and matching `response_sent` log.
+- Fix action: disable the incident or revert the RAG/prompt change that increased latency after evidence is captured.
+- Preventive measure: keep `HighLatencyP95`, review dashboard before prompt/RAG releases, and keep rollback steps in `docs/alerts.md`.
 
-## 7. Đóng góp cá nhân
+## 7. Individual Contributions
 
-Với mỗi thành viên, ghi rõ nhiệm vụ và link commit/PR tương ứng.
-
-| Thành viên | Phần việc | Commit/PR | Điều đã học |
+| Member | Work | Commit/PR | Learned |
 |---|---|---|---|
-| | | | |
-| | | | |
-| Thành viên C | Xây dựng dashboard 6 panel (`scripts/dashboard.py`): Latency P50/P95/P99, Traffic, Error rate %, Cost, Tokens, Quality — có SLO threshold và badge xanh/đỏ. Chạy `validate_dashboard.py` đạt HỢP LỆ 6/6. | _(điền commit SHA)_ | Cách tính `error_rate_pct` từ JSONL log; thiết kế dashboard không cần DB; trực quan hoá SLO bằng Gauge/Donut chart |
-| | | | |
-| | | | |
+| Thanh vien C | Built the six-panel dashboard in `scripts/dashboard.py`: latency P50/P95/P99, traffic, error rate, cost, tokens, quality, with SLO threshold indicators. | _(fill commit SHA)_ | How to calculate `error_rate_pct` from JSONL logs and visualize SLO status. |
+| CP2 owner | Set SLO note, wrote alert rules, wrote alert runbook, generated CP2 validator evidence, and documented the incident investigation flow. | _(fill commit SHA)_ | How to connect Metrics -> Traces -> Logs and turn SLOs into actionable alerts. |
