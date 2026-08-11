@@ -13,7 +13,7 @@
 | 2A202601267 | Trần Thị Thanh Tâm  | Thành viên B — Security Engineer (CP1 PII Scrubbing) |
 | 2A202601125 | Tạ Thị Nga           | Thành viên C — Dashboard & SLO (CP2)                 |
 | 2A202601105 | Huỳnh Hoàng Việt    | CP2 owner — Tracing & Prompt Versioning                |
-| 2A2026      | Nguyễn Văn Tiến     | CP3 owner — Incident Investigation                     |
+| 2A202601433 | Nguyễn Văn Tiến     | CP3 owner — Incident Investigation                     |
 
 ## 2. Technical Results
 
@@ -120,19 +120,21 @@ Cờ `rag_slow` được bật khiến hàm `retrieve()` trong [app/mock_rag.py:
 
 Commit SHA dưới đây lấy trực tiếp từ `git log` nên đối chiếu được với repository. Vai trò được xác định theo file mà từng thành viên thực sự thay đổi, không phải theo phân công trên giấy.
 
-### 7.1. Bảng tóm tắt
+### 7.1. Bảng tóm tắt commit
 
-| MSSV | Thành viên | Vai trò | Commit chính |
-|---|---|---|---|
-|  | _(điền tên — GitHub `its6ueq`)_ | Thành viên A — API & Middleware | `9fc91ee` |
-|  | Trần Thị Thanh Tâm | Thành viên B — Security Engineer | `d80f481`, `4a9e45e` |
-|  | Tạ Thị Nga | Thành viên C — Dashboard & SLO | `12b80f1`, `bd55514` |
-|  | Hoàng Việt | CP2 — Tracing & Prompt Versioning | `9c7e299`, `0fb82a1` |
-|  | Nguyễn Văn Tiến | CP3 — Incident Investigation | `bf05cfb` |
+Vai trò chi tiết xem mục 1. Bảng này ánh xạ từng thành viên sang commit tương ứng để đối chiếu với `git log`.
 
-### 7.2. Thành viên A — API & Middleware (CP1 Correlation ID)
+| MSSV         | Thành viên           | Commit chính            |
+| ------------ | ---------------------- | ------------------------ |
+| 2A202601225  | Nguyễn Duy Hải Bằng | `9fc91ee`              |
+| 2A202601267  | Trần Thị Thanh Tâm  | `d80f481`, `4a9e45e` |
+| 2A202601125  | Tạ Thị Nga           | `12b80f1`, `bd55514` |
+| 2A202601105  | Huỳnh Hoàng Việt    | `9c7e299`, `0fb82a1` |
+| 2A202601433  | Nguyễn Văn Tiến     | `bf05cfb`              |
 
-**Commit:** `9fc91eebd0ebb24f94da3481a8106306c47297bb` — *phan a*
+### 7.2. Nguyễn Duy Hải Bằng — API & Middleware (CP1 Correlation ID)
+
+**Commit:** `9fc91eebd0ebb24f94da3481a8106306c47297bb` 
 
 **Nhiệm vụ đã làm**
 
@@ -146,11 +148,10 @@ Commit SHA dưới đây lấy trực tiếp từ `git log` nên đối chiếu 
 
 **Evidence:** `submission/evidence/correlation_id_logs.jsonl`, `submission/evidence/validate_logs_after_cp1_middleware.txt`
 
-**Điều đã học:** _(thành viên tự điền)_
 
 ### 7.3. Trần Thị Thanh Tâm — Security Engineer (CP1 PII Scrubbing)
 
-**Commit:** `d80f481e8014397bd2b25c2cfa3a9039e43a8904` — *feat(pii): scrub PII across all log fields and extend regex patterns*; `4a9e45e412d86f1579290cad3b43161009ea849e` — *docs(pii): add CP1 PII scrubbing evidence and report entry*
+**Commit:** `d80f481e8014397bd2b25c2cfa3a9039e43a8904`; `4a9e45e412d86f1579290cad3b43161009ea849e` 
 
 **Nhiệm vụ đã làm**
 
@@ -166,7 +167,7 @@ Commit SHA dưới đây lấy trực tiếp từ `git log` nên đối chiếu 
 
 ### 7.4. Tạ Thị Nga — Dashboard & SLO (CP2)
 
-**Commit:** `12b80f1830429bfa8af530bffb57376fe5512749` — *Thanh vien C commit*; `bd55514934c93d3d54939917e549c57d9bb43386` — *Nga commit*
+**Commit:** `12b80f1830429bfa8af530bffb57376fe5512749`; `bd55514934c93d3d54939917e549c57d9bb43386`
 
 **Nhiệm vụ đã làm**
 
@@ -179,9 +180,9 @@ Commit SHA dưới đây lấy trực tiếp từ `git log` nên đối chiếu 
 
 **Điều đã học:** Cách tính `error_rate_pct` từ log JSONL; thiết kế dashboard không cần database; trực quan hoá SLO bằng Gauge/Donut chart.
 
-### 7.5. Hoàng Việt — Tracing & Prompt Versioning (CP2)
+### 7.5. Huỳnh Hoàng Việt — Tracing & Prompt Versioning (CP2)
 
-**Commit:** `9c7e299dbfca967939bb60590f820dd239adfcaf` — *Viet complete checkpoint2*; `0fb82a16b7d8db28dda9eaca064317f01d8480cd` — *Viet completed CP2*
+**Commit:** `9c7e299dbfca967939bb60590f820dd239adfcaf; 0fb82a16b7d8db28dda9eaca064317f01d8480cd`
 
 **Nhiệm vụ đã làm**
 
@@ -196,7 +197,7 @@ Commit SHA dưới đây lấy trực tiếp từ `git log` nên đối chiếu 
 
 ### 7.6. Nguyễn Văn Tiến — Incident Investigation (CP3)
 
-**Commit:** `bf05cfb3459b861db1d66d7875a5adfdfbb94563` — *cp3*
+**Commit:** `bf05cfb3459b861db1d66d7875a5adfdfbb94563` 
 
 **Nhiệm vụ đã làm**
 
@@ -208,5 +209,3 @@ Commit SHA dưới đây lấy trực tiếp từ `git log` nên đối chiếu 
 - Viết mục 6 của báo cáo này.
 
 **Evidence:** `submission/evidence/challenge_investigation.txt`, `submission/evidence/challenge_logs.jsonl`
-
-**Điều đã học:** _(thành viên tự điền)_
