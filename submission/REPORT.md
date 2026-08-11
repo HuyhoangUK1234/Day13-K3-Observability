@@ -1,12 +1,19 @@
-﻿
-# Day 13 Observability Report
+﻿# Day 13 Observability Report
 
 ## 1. Group Info
 
 - Group name: B2
-- Repository URL:
+- Repository URL: [github.com/VinUni-AI20k/Day13-K4-Observability.git](https://github.com/VinUni-AI20k/Day13-K4-Observability.git)
 - Final commit SHA:
 - Members and roles:
+
+| MSSV        | Họ và tên           | Role                                                    |
+| ----------- | ---------------------- | ------------------------------------------------------- |
+| 2A202601225 | Nguyễn Duy Hải Bằng | Thành viên A — API & Middleware (CP1 Correlation ID) |
+| 2A202601267 | Trần Thị Thanh Tâm  | Thành viên B — Security Engineer (CP1 PII Scrubbing) |
+| 2A202601125 | Tạ Thị Nga           | Thành viên C — Dashboard & SLO (CP2)                 |
+| 2A202601105 | Huỳnh Hoàng Việt    | CP2 owner — Tracing & Prompt Versioning                |
+| 2A2026      | Nguyễn Văn Tiến     | CP3 owner — Incident Investigation                     |
 
 ## 2. Technical Results
 
@@ -111,10 +118,95 @@ Cờ `rag_slow` được bật khiến hàm `retrieve()` trong [app/mock_rag.py:
 
 ## 7. Đóng góp cá nhân
 
-Với mỗi thành viên, ghi rõ nhiệm vụ và link commit/PR tương ứng.
+Commit SHA dưới đây lấy trực tiếp từ `git log` nên đối chiếu được với repository. Vai trò được xác định theo file mà từng thành viên thực sự thay đổi, không phải theo phân công trên giấy.
 
-| Thành viên          | Phần việc                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | Commit/PR                                                                                                                | Điều đã học                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Tạ Thị Nga          | Xây dựng dashboard 6 panel (`scripts/dashboard.py`): Latency P50/P95/P99, Traffic, Error rate %, Cost, Tokens, Quality, có SLO threshold và badge xanh/đỏ. Chạy `validate_dashboard.py` đạt HỢP LỆ 6/6.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | _12b80f1830429bfa8af530bffb57376fe5512749_                                                                             | Cách tính`error_rate_pct` từ JSONL log; thiết kế dashboard không cần DB; trực quan hoá SLO bằng Gauge/Donut chart.                                                                                                                                                                                                                                                                                                                                                                                   |
-| CP2 owner             | Set SLO note, wrote alert rules, wrote alert runbook, generated CP2 validator evidence, and documented the incident investigation flow.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | _(fill commit SHA)_                                                                                                    | How to connect Metrics -> Traces -> Logs and turn SLOs into actionable alerts.                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| Trần Thị Thanh Tâm | **CP1 PII Scrubbing (Security Engineer).** (1) Mở rộng `PII_PATTERNS` trong [app/pii.py](../app/pii.py) từ 4 lên 8 pattern — thêm hộ chiếu VN, CMND 9 số, ngày sinh, địa chỉ tiếng Việt; ghi chú phụ thuộc thứ tự `email` trước các pattern số. (2) Đăng ký `scrub_event` vào processor chain của structlog trong [app/logging_config.py](../app/logging_config.py) — hàm này có sẵn nhưng bị comment out nên chưa bao giờ chạy — và đặt sau `format_exc_info`, trước `JsonlFileProcessor`, để traceback cũng được che. (3) Viết lại `scrub_event` thành quét đệ quy toàn bộ `event_dict` (chuỗi, dict lồng nhau, list, tuple) thay vì chỉ `payload` một tầng. (4) Nâng `tests/test_pii.py` từ 2 lên 12 test. Evidence: `submission/evidence/pii_redacted_logs.jsonl`, `validate_logs_pii_cp1.txt`, `pii_tests_cp1.txt`. | `d80f481e8014397bd2b25c2cfa3a9039e43a8904` — *feat(pii): scrub PII across all log fields and extend regex patterns* | Thứ tự processor quyết định phạm vi bảo vệ: scrub phải chạy**sau** `format_exc_info` vì trước đó traceback còn là object chứ chưa phải chuỗi để regex quét, và phải **trước** bộ ghi file vì dữ liệu đã xuống đĩa là không thu hồi được. Nguyên tắc chung: vùng phủ của bộ che phải rộng bằng vùng phủ của bộ dò — `validate_logs.py` quét cả record sau `json.dumps`, nên che chọn lọc vài field là tự chừa cửa cho lọt. |
+### 7.1. Bảng tóm tắt
+
+| MSSV | Thành viên | Vai trò | Commit chính |
+|---|---|---|---|
+|  | _(điền tên — GitHub `its6ueq`)_ | Thành viên A — API & Middleware | `9fc91ee` |
+|  | Trần Thị Thanh Tâm | Thành viên B — Security Engineer | `d80f481`, `4a9e45e` |
+|  | Tạ Thị Nga | Thành viên C — Dashboard & SLO | `12b80f1`, `bd55514` |
+|  | Hoàng Việt | CP2 — Tracing & Prompt Versioning | `9c7e299`, `0fb82a1` |
+|  | Nguyễn Văn Tiến | CP3 — Incident Investigation | `bf05cfb` |
+
+### 7.2. Thành viên A — API & Middleware (CP1 Correlation ID)
+
+**Commit:** `9fc91eebd0ebb24f94da3481a8106306c47297bb` — *phan a*
+
+**Nhiệm vụ đã làm**
+
+- Sinh correlation ID theo format `req-<8-hex>` trong [app/middleware.py](../app/middleware.py); nhận lại `x-request-id` từ upstream khi giá trị khớp regex an toàn, tránh log injection.
+- `bind_contextvars` correlation ID ngay tại middleware, nhờ đó mọi log phát sinh trong request đều tự mang ID mà không cần truyền tay qua từng hàm.
+- Enrich log endpoint `/chat` trong [app/main.py](../app/main.py) với `user_id_hash`, `session_id`, `feature`, `model`, `env`.
+- Trả `x-request-id` và `x-response-time-ms` về response header để client đối chiếu được với log server.
+- Thêm exception handler ghi `http_request_failed` kèm `error_type` và latency.
+- `clear_contextvars` sau mỗi request để context không rò từ request này sang request khác.
+- Viết `tests/test_middleware_correlation.py`.
+
+**Evidence:** `submission/evidence/correlation_id_logs.jsonl`, `submission/evidence/validate_logs_after_cp1_middleware.txt`
+
+**Điều đã học:** _(thành viên tự điền)_
+
+### 7.3. Trần Thị Thanh Tâm — Security Engineer (CP1 PII Scrubbing)
+
+**Commit:** `d80f481e8014397bd2b25c2cfa3a9039e43a8904` — *feat(pii): scrub PII across all log fields and extend regex patterns*; `4a9e45e412d86f1579290cad3b43161009ea849e` — *docs(pii): add CP1 PII scrubbing evidence and report entry*
+
+**Nhiệm vụ đã làm**
+
+- Mở rộng `PII_PATTERNS` trong [app/pii.py](../app/pii.py) từ 4 lên 8 pattern: bổ sung hộ chiếu VN, CMND 9 số, ngày sinh, địa chỉ tiếng Việt. Ghi chú trong code phụ thuộc thứ tự `email` phải chạy trước các pattern số.
+- Đăng ký `scrub_event` vào processor chain của structlog trong [app/logging_config.py](../app/logging_config.py). Hàm này có sẵn trong starter code nhưng bị comment out nên chưa bao giờ chạy.
+- Đặt `scrub_event` **sau** `format_exc_info` và **trước** `JsonlFileProcessor`, để traceback exception cũng được che trước khi ghi xuống đĩa.
+- Viết lại `scrub_event` thành quét đệ quy toàn bộ `event_dict` — chuỗi, dict lồng nhau, list, tuple — thay vì chỉ `payload` một tầng như bản cũ.
+- Nâng `tests/test_pii.py` từ 2 lên 12 test, gồm test khoá thứ tự pattern, test chặn false positive trên field kỹ thuật, và test xác nhận processor thực sự được đăng ký trong chain.
+
+**Evidence:** `submission/evidence/pii_redacted_logs.jsonl`, `submission/evidence/validate_logs_pii_cp1.txt`, `submission/evidence/pii_tests_cp1.txt`
+
+**Điều đã học:** Thứ tự processor quyết định phạm vi bảo vệ. Scrub phải chạy **sau** `format_exc_info` vì trước đó traceback vẫn là object chứ chưa phải chuỗi để regex quét được, và phải **trước** bộ ghi file vì dữ liệu đã xuống đĩa là không thu hồi được. Nguyên tắc rút ra: vùng phủ của bộ che phải rộng bằng vùng phủ của bộ dò — `validate_logs.py` quét cả record sau `json.dumps`, nên che chọn lọc vài field là tự chừa cửa cho lọt. Ngoài ra, dòng `PASSED` của validator không tự chứng minh phần scrub hoạt động, vì starter code đã bọc `summarize_text()` sẵn ở hai đường preview; bằng chứng thật nằm ở unit test.
+
+### 7.4. Tạ Thị Nga — Dashboard & SLO (CP2)
+
+**Commit:** `12b80f1830429bfa8af530bffb57376fe5512749` — *Thanh vien C commit*; `bd55514934c93d3d54939917e549c57d9bb43386` — *Nga commit*
+
+**Nhiệm vụ đã làm**
+
+- Xây dựng dashboard 6 panel trong `scripts/dashboard.py`: Latency P50/P95/P99, Traffic, Error rate %, Cost, Tokens, Quality.
+- Gắn SLO threshold cho từng panel kèm badge xanh/đỏ thể hiện trạng thái đạt hay vi phạm.
+- Chạy `validate_dashboard.py` đạt HỢP LỆ 6/6 panel theo dashboard contract.
+- Thu thập và đặt tên lại evidence ảnh dashboard.
+
+**Evidence:** `submission/evidence/Dashboard1.png`, `Dashboard2.png`, `Dashboard3.png`, `validate_dashboard.png`, `validate_logs.png`, `dashboard_tests_cp2.txt`
+
+**Điều đã học:** Cách tính `error_rate_pct` từ log JSONL; thiết kế dashboard không cần database; trực quan hoá SLO bằng Gauge/Donut chart.
+
+### 7.5. Hoàng Việt — Tracing & Prompt Versioning (CP2)
+
+**Commit:** `9c7e299dbfca967939bb60590f820dd239adfcaf` — *Viet complete checkpoint2*; `0fb82a16b7d8db28dda9eaca064317f01d8480cd` — *Viet completed CP2*
+
+**Nhiệm vụ đã làm**
+
+- Tạo trace Langfuse kèm metadata cho tối thiểu 10 request.
+- Dựng prompt `day13-chat` version 1 và 2, gắn label `baseline`, `production`, `candidate`.
+- Thực hiện đổi label `production` sang v2 rồi rollback về v1, lưu bằng chứng trước và sau.
+- Hoàn thiện `config/alert_rules.yaml`, `config/slo.yaml` và runbook trong `docs/alerts.md`.
+
+**Evidence:** `submission/evidence/langfuse_10_traces_cp2.txt`, `langfuse_trace_ids_cp2.txt`, `prompt_versions_cp2.txt`, `prompt_label_requests_cp2.txt`, `prompt_label_rollback_cp2.txt`, `prompt_tracing_tests_cp2.txt`, `validate_dashboard_cp2.txt`, `validate_logs_cp2.txt`
+
+**Điều đã học:** Cách nối luồng Metrics → Traces → Logs và biến SLO thành alert có thể hành động được.
+
+### 7.6. Nguyễn Văn Tiến — Incident Investigation (CP3)
+
+**Commit:** `bf05cfb3459b861db1d66d7875a5adfdfbb94563` — *cp3*
+
+**Nhiệm vụ đã làm**
+
+- Chạy challenge chính thức `day13-k3-observability-v1` với input trong `config/challenge.json`.
+- Xác định triệu chứng từ metrics: P95 vọt lên 3483 ms trong khi P50 gần như đứng yên, cho thấy sự cố khu trú ở một nhóm request chứ không phải toàn hệ thống.
+- Dùng 5 trace Langfuse khoanh vùng phần latency dôi ra nằm trước bước gọi LLM, tức bước RAG retrieval.
+- Dùng log và correlation ID chứng minh root cause: cờ `rag_slow` chèn `time.sleep(2.5)` trong `app/mock_rag.py`, cộng thẳng vào latency đầu-cuối.
+- Đề xuất fix action (timeout và fallback cho `retrieve()`) và preventive measure (alert P95, tách metric theo span, alert phân kỳ P50/P95).
+- Viết mục 6 của báo cáo này.
+
+**Evidence:** `submission/evidence/challenge_investigation.txt`, `submission/evidence/challenge_logs.jsonl`
+
+**Điều đã học:** _(thành viên tự điền)_
